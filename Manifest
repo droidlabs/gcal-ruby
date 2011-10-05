@@ -7,3 +7,4 @@ init.rb
 lib/gcal.rb
 lib/gcal/calendar.rb
 lib/gcal/client.rb
+lib/gcal/event.rb
