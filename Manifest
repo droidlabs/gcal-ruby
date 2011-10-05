@@ -1,0 +1,9 @@
+CHANGELOG
+LICENSE
+Manifest
+README.rdoc
+Rakefile
+init.rb
+lib/gcal.rb
+lib/gcal/calendar.rb
+lib/gcal/client.rb

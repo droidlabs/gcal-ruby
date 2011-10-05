@@ -1,0 +1,9 @@
+== Installation
+  $ gem install gcal-ruby
+  
+== Using
+  require 'gcal'
+  
+  client = GCal::Client.new(api_key, api_secret, oauth_token, oauth_secret)
+  client.all_calendars                  # returns all user calendars
+  client.all_calendars                  # returns user owned calendars
