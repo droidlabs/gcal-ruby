@@ -17,12 +17,13 @@ module GCal
     end
     
     class << self
-      def parse(entry)
+      def parse(entry, path)
+        calendar_home_url = 'http://www.google.com/calendar/feeds'
         parse_time = Time.respond_to?(:parse)
         calendar = self.new
-
+        
         # common info
-        calendar.id = entry['id'][0].gsub('http://www.google.com/calendar/feeds/default/allcalendars/full/', '')
+        calendar.id = entry['id'][0].gsub(calendar_home_url + path, '')
         calendar.title = entry['title'][0]['content']
         calendar.link = entry['link'][0]['href']
         calendar.access_level = entry['accesslevel'][0]['value']

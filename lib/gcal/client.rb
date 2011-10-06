@@ -25,19 +25,21 @@ module GCal
     end
     
     def all_calendars
-      xml = call("/default/allcalendars/full")
+      path = "/default/allcalendars/full/"
+      xml = call(path)
       calendars = []
       xml['entry'].each do |entry|
-        calendars << GCal::Calendar.parse(entry)
+        calendars << GCal::Calendar.parse(entry, path)
       end if xml['entry']
       calendars
     end
     
     def own_calendars
-      xml = call("/default/owncalendars/full")
+      path = "/default/owncalendars/full/"
+      xml = call(path)
       calendars = []
       xml['entry'].each do |entry|
-        calendars << GCal::Calendar.parse(entry)
+        calendars << GCal::Calendar.parse(entry, path)
       end if xml['entry']
       calendars
     end
