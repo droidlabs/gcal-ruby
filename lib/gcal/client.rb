@@ -28,7 +28,7 @@ module GCal
       xml = call("/default/allcalendars/full")
       calendars = []
       xml['entry'].each do |entry|
-        calendars << parse_calendar(entry)
+        calendars << GCal::Calendar.parse(entry)
       end if xml['entry']
       calendars
     end
@@ -37,69 +37,21 @@ module GCal
       xml = call("/default/owncalendars/full")
       calendars = []
       xml['entry'].each do |entry|
-        calendars << parse_calendar(entry)
+        calendars << GCal::Calendar.parse(entry)
       end if xml['entry']
       calendars
     end
     
-    def events(calendar_id)
-      xml = call("/#{calendar_id}/private/full")
+    def events(calendar_id, options = {})
+      xml = call("/#{calendar_id}/private/full#{GCal::Event.prepare_options(options)}")
       events = []
       xml['entry'].each do |entry|
-        event = GCal::Event.new
-        
-        # common info
-        event.id = entry['id'][0].gsub("http://www.google.com/calendar/feeds/#{calendar_id}/private/full/", '')
-        event.title = entry['title'][0]['content']
-        event.link = entry['link'][0]['href']
-        event.status = entry['eventStatus'][0]['value'].gsub(Event::STATUS_REGEXP, '')
-        event.where = entry['where'][0]['valueString']
-        event.who = entry['who'][0]['valueString']
-        
-        # time info
-        time = entry['when'][0]
-        event.start_time = parse_time? ? Time.parse(time['startTime']) : time['startTime']
-        event.end_time = parse_time? ? Time.parse(time['endTime']) : time['endTime']
-        event.updated_at = parse_time? ? Time.parse(entry['updated'][0]) : entry['updated'][0]
-        event.published_at = parse_time? ? Time.parse(entry['published'][0]) : entry['published'][0]
-        
-        # author
-        author = entry['author'][0]
-        event.author_name = author['name'] ? author['name'][0] : ''
-        event.author_email = author['email'] ? author['email'][0] : ''
-        events << event
+        events << GCal::Event.parse(calendar_id, entry)
       end if xml['entry']
       events
     end
     
     protected
-    def parse_calendar(entry)
-      calendar = GCal::Calendar.new
-      
-      # common info
-      calendar.id = entry['id'][0].gsub('http://www.google.com/calendar/feeds/default/allcalendars/full/', '')
-      calendar.title = entry['title'][0]['content']
-      calendar.link = entry['link'][0]['href']
-      calendar.access_level = entry['accesslevel'][0]['value']
-      calendar.color = entry['color'][0]['value']
-      calendar.hidden = entry['hidden'][0]['value'] == 'true'
-      calendar.selected = entry['selected'][0]['value'] == 'true'
-      
-      # time info
-      calendar.timezone = entry['timezone'][0]['value']
-      calendar.updated_at = parse_time? ? Time.parse(entry['updated'][0]) : entry['updated'][0]
-      calendar.published_at = parse_time? ? Time.parse(entry['published'][0]) : entry['published'][0]
-      
-      # author
-      author = entry['author'][0]
-      calendar.author_name = author['name'] ? author['name'][0] : ''
-      calendar.author_email = author['email'] ? author['email'][0] : ''
-      calendar
-    end
-    
-    def parse_time?
-      Time.respond_to?(:parse)
-    end
     
     def protected_api_call?
       !@api_key.nil?
